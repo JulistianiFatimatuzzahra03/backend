@@ -1,90 +1,92 @@
-const model = require("../database/models/");
+const model = require("../database/models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 function login(req, res) {
-    const email = req.body.email;
-    const password = req.body.password;
+    const { email, password } = req.body;
 
     model.User.findOne({
         where: {
             email: email,
-        },
-    }).then(function (result) {
-        let passwordHash = result.password;
-        let checkPassword = bcrypt.compareSync(password, passwordHash);
+        }
+    }).then(function (data) {
+        if (!data) {
+            res.status(401).json({
+                message: "Login Gagal: User tidak ada",
+            });
+            return;
+        }
 
-        if (checkPassword) {
+        let passwordHash = data.password;
+        let isPasswordValid = bcrypt.compareSync(password, passwordHash);
+
+        if (isPasswordValid) {
             res.json({
                 message: "Berhasil Login",
-                token: jwt.sign({ id: result.id }, process.env.JWT_KEY_SECRET, {
+                data,
+                token: jwt.sign({ id: data.id}, process.env.JWT_KEY_SECRET, {
                     expiresIn: '1h'
                 }),
             });
         } else {
-            res.json({
-                message: "Gagal Login",
+            res.status(401).json({
+                message: "Login Gagal: email atau password",
             });
         }
     }).catch(function (error) {
-        res.json({ error: error });
+        console.error('Error during login:', error);
+        res.status(500).json({
+            message: "Login failed: An error occurred",
+            error: error.message,
+        });
     });
 }
 
-function register(req, res) {
-    const name = req.body.name;
+function register(req, res){
     const email = req.body.email;
+    const name = req.body.name;
     const password = req.body.password;
 
-    // Check if the user already exists
     model.User.findOne({
         where: {
             email: email,
         },
-    }).then(function (result) {
-        // If the user already exists, return an error message
-        if (result) {
+    }).then(function (result){
+        if(result){
             res.json({
-                message: "User already exists. Registration failed.",
+                message: "Email Sudah Telah Di Terdaftar, Gunakan email lain ",
+                data: result
             });
         } else {
-            // If the user does not exist, hash the password and create a new user
             const hashedPassword = bcrypt.hashSync(password, 10);
 
             model.User.create({
                 name: name,
                 email: email,
                 password: hashedPassword,
-            }).then(function (newUser) {
+            }).then(function (newUser){
                 res.json({
-                    message: "Registration successful",
-                    token: jwt.sign({ id: newUser.id }, process.env.JWT_KEY_SECRET, {
+                    message: "Registrasi Berhasil",
+                    name: newUser.name,
+                    email: newUser.email,
+                    token: jwt.sign({id: newUser.id}, process.env.JWT_KEY_SECRET,{
                         expiresIn: '1h'
                     }),
-                    data: {
-                        id: newUser.id,
-                        name: newUser.name,
-                        email: newUser.email,
-                    }
                 });
-            }).catch(function (error) {
-                res.json({ error: error });
+            }).catch(function (error){
+                res.json({
+                    error: error.message
+                }); 
             });
         }
-    }).catch(function (error) {
-        res.json({ error: error });
-    });
-}
-
-function logout(req, res) {
-    // logic logout disini
-
-    res.json({
-        message: "Logout successful",
+    }).catch(function (error){
+        res.json({
+            error: error.message
+        });  
     });
 }
 
 module.exports = {
-    login, register, logout
+    login, register
 }

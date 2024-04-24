@@ -4,7 +4,7 @@ const ketegoriController = require('./kategoriController');
 const produkController = require('./produkController')
 module.exports = {
     auth: authController,
-    userController,
-    ketegoriController,
-    produkController
+    user: userController,
+    kategori: ketegoriController,
+    produk: produkController
 };

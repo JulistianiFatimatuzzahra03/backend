@@ -75,7 +75,7 @@ const store = async (req, res) => {
             const { nama_produk, harga, deskripsi, id_kategori } = req.body;
 
             // Menyimpan data produk ke database
-            const save = await Produk.create({ nama_produk, id_kategori, harga, deskripsi, foto });
+            const save = await Produk.create({ nama_produk, id_kategori, harga, deskripsi, foto});
             res.json({ status: 200, message: 'success', data: save });
         });
     } catch (error) {
@@ -162,7 +162,30 @@ const destroy = async (req, res) => {
     }
 }
 
+const findOne = (req, res) => {
+    Produk.findByPk(req.params.id, {
+        attributes: { exclude: ['password']}
+    }).then((produk) => {
+        if (produk){
+            res.json({
+                message: "produk retrieved successfully.",
+                data: produk,
+            });
+        } else {
+            res.status(404).json({
+                message: "produk retrieved failed",
+                data: produk
+            })
+        }
+    }).catch((err) => {
+        res.status(500).json({
+            message: err.message || "Some error occurred while retrieving produk.",
+            data: null,
+        });
+    });
+};
+
 module.exports = {
     index, show, store,
-    update, destroy
+    update, destroy, findOne
 }

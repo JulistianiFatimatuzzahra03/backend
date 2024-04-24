@@ -112,11 +112,20 @@ exports.delete = (req, res) => {
 
 // BONUS ===> Mengambil data sesuai id yang dikirimkan
 exports.findOne = (req, res) => {
-    User.findByPk(req.params.id).then((user) => {
-        res.json({
-            message: "user retrieved successfully.",
-            data: user,
-        });
+    User.findByPk(req.params.id, {
+        attributes: { exclude: ['password']}
+    }).then((user) => {
+        if (user){
+            res.json({
+                message: "user retrieved successfully.",
+                data: user,
+            });
+        } else {
+            res.status(404).json({
+                message: "user retrieved failed",
+                data: user
+            })
+        }
     }).catch((err) => {
         res.status(500).json({
             message: err.message || "Some error occurred while retrieving user.",

@@ -16,7 +16,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: 'Kategoris',
-          key: 'id'
+          key: 'id_kategori'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
@@ -30,6 +30,9 @@ module.exports = {
       foto: {
         type: Sequelize.STRING
       },
+      kategori: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -37,7 +40,7 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      },
     });
   },
   async down(queryInterface, Sequelize) {

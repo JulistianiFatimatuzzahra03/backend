@@ -15,6 +15,7 @@ router.get('/api/v1/kategori/:id', kategoriController.show); // Mendapatkan deta
 router.post('/api/v1/kategori', verifyToken, kategoriController.store); // Menyimpan kategori baru
 router.put('/api/v1/kategori/:id', verifyToken, kategoriController.update); // Memperbarui data kategori berdasarkan ID
 router.delete('/api/v1/kategori/:id', verifyToken, kategoriController.destroy); // Menghapus kategori berdasarkan ID
+router.get('/api/v1/kategori/:id', kategoriController.findOne);
 
 // Mengekspor router untuk digunakan di modul lain
 module.exports = router;
